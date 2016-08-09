@@ -1,0 +1,264 @@
+<!-- To Do list
+A)  Determine where 2 lines intersect.
+B)  Allow the mouse to input points for a concave polygon and a second polygon
+C)  Determine overlapping area for 2 polygons.
+D)  Show 2 polygons on screen.
+E)  Show highlight area of 2 polygons and make the area where they overlap darker.
+F)  Switch from using arrays to using objects, like Erty's email. -->
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Overlapping area project</title>
+	<style>
+		#screen {
+			background-color:#222222;
+			height: 800px;
+			width: 1200px;
+			/*border: 10px dashed red;*/
+			position:relative;
+		}
+
+		.point{
+			height: 10px;
+			width: 10px;
+			border-radius:5px;
+			background-color: red;
+			position:absolute;
+		}
+
+		.majAxis{
+			background-color: black;
+			position: absolute;
+			border: 1px solid white;
+
+		}
+
+		.minAxis{
+			background-color: black;
+			position: absolute;
+			border: 1px dotted #666;
+		}
+
+		p {
+			text: red;
+		}
+	</style>
+</head>
+<body>
+	<div class="head"></div>
+	<hr class="majAxis" style="top:0px; left:600px; height:800px; width:2px">
+	<div id="screen">
+		<div>
+			<div class="minAxis" style="top:100px; left:0; height:0px; width:1200px;"></div>
+			<div class="minAxis" style="top:200px; left:0; height:0px; width:1200px;"></div>
+			<div class="minAxis" style="top:300px; left:0; height:0px; width:1200px;"></div>
+		</div>
+		<div class="majAxis" style="top:399px; left:0; height:0px; width:1200px;"></div>
+		<div>
+			<div class="minAxis" style="top:500px; left:0; height:0px; width:1200px;"></div>
+			<div class="minAxis" style="top:600px; left:0; height:0px; width:1200px;"></div>
+			<div class="minAxis" style="top:700px; left:0; height:0px; width:1200px;"></div>
+		</div>
+		<div>
+			<div class="minAxis" style="top:0px; left:100px; height:800px; width:0px"></div>
+			<div class="minAxis" style="top:0px; left:200px; height:800px; width:0px"></div>
+			<div class="minAxis" style="top:0px; left:300px; height:800px; width:0px"></div>
+			<div class="minAxis" style="top:0px; left:400px; height:800px; width:0px"></div>
+			<div class="minAxis" style="top:0px; left:500px; height:800px; width:0px"></div>
+		</div>
+		<div class="majAxis" style="top:0px; left:599px; height:800px; width:0px"></div>
+		<div>
+			<div class="minAxis" style="top:0px; left:700px; height:800px; width:0px"></div>
+			<div class="minAxis" style="top:0px; left:800px; height:800px; width:0px"></div>
+			<div class="minAxis" style="top:0px; left:900px; height:800px; width:0px"></div>
+			<div class="minAxis" style="top:0px; left:1000px; height:800px; width:0px"></div>
+			<div class="minAxis" style="top:0px; left:1100px; height:800px; width:0px"></div>
+		</div>
+		<div>
+			<div id="pt1" class="point" style="top:350px; left:350px">
+				<div style="color:#888; width:100px; padding-left:20px"> 
+					350, 350 
+				</div>
+			</div>
+			<div id="pt1" class="point" style="top:395px; left:595px">
+				<p><div style="color:#888; width:100px; padding-left:1 b0px">
+					0, 0 
+				</div></p>
+			</div>
+			<div id="pt2" class="point" style="top:350px; left:350px"></div>
+			<div id="pt3" class="point" style="top:350px; left:350px"></div>
+			<div id="pt4" class="point" style="top:350px; left:350px"></div>
+		</div>
+
+
+	</div>
+
+	<script>
+/*		From Erty...TODO..convert to using this notation....
+
+			polygon = [
+ 				{x: 5, y: 5},
+ 				{x: 20, y: 5},
+ 				{x: 15, y: 10}
+				];
+
+			Then you can create a newPoint(x,y) function, e.g.:
+
+			function newPoint(x,y) {
+  				return {x : x, y : y};
+			}
+***************************************
+
+*/
+/*
+
+		polygon_1a = {
+			point01: [5.0, 5.0],
+			point02: [20.0, 5.0],
+			point03: [15.0, 10.0]
+		};
+		console.log (polygon_1a.point01);
+		console.log (polygon_1a.point01[0]);
+		console.log (polygon_1a.point01[1]);
+
+
+		polygon_1b = {
+			pX_00: 5.0,
+			pY_00: 5.0,
+			pX_01: 20.0,
+			pY_01: 5.0,
+			pX_02: 15.0,
+			pY_02: 10.0
+
+		var pnt_001 = {x:5.0, y:5.0};
+		var pnt_002 = {x:20.0, y:5.0};
+		var pnt_003 = {x:15.0, y:10.0};
+		}
+*/
+
+		var polygon_1 = [[5.0, 5.0], [0, 0], [-5.0, -5.0], [-10.0, -10.0], [-5.0, -20.0], [0, -15], [10.0, -5.0], [20.0, 5.0], [15.0, 10.0]];//Answer = 337.5
+		//Points have to be in counterclockwise or clockwise order
+		var polygon_2 = [[15.0, 10.0], [5.0, 5.0], [20.0, 5.0]];//Answer = 37.5
+		var polygon_3 = [[-10.0, 3.0], [-5.0,-7.0], [-5.0,8.0]];//Answer = 37.5
+
+		function coorTrans (polyTrans){ //pass as array of n elements, each element has an X (0), Y (1) component
+			for (var i = 1; i< polyTrans.length; i++){
+				polyTrans[i][0]-= polyTrans[0][0];
+				polyTrans[i][1]-= polyTrans[0][1];
+			}
+			polyTrans[0][0] = 0;
+			polyTrans[0][1] = 0;
+			return polyTrans;
+		}
+
+		function twoPointsSlope (p1Trans, p2Trans){ //slope, pass 2 arrays of dimension 2.
+			if (p1Trans[0] === p2Trans[0]){
+				return Infinity;
+			}
+			if (p1Trans[1] === p2Trans[1]){
+				return 0
+			}
+			return (p2Trans[1]-p1Trans[1])/(p2Trans[0]-p1Trans[0]);
+		}
+
+		function bIntercept(p1Trans, slope){  // pass an array or 2 (X, Y) and a number(slope)
+			if (slope === 0){
+				return p1Trans[1];
+			}
+			if (slope === Infinity){
+				return Infinity;
+			}
+			return p1Trans[1] - slope * p1Trans[0];
+		}
+
+		function distanceTwoPoints (pntA, pntB){  // pass 2 arrays, [X0, Y0] and [X1, Y0] 
+			var distance = Math.sqrt(Math.pow((pntA[0] - pntB[0]),2) + Math.pow((pntA[1] - pntB[1]),2));
+			return distance
+		}
+
+		function lineIntsect (yAxisInt, lSlope){
+			var xPoint = lSlope*yAxisInt / (-lSlope*lSlope-1);
+			var yPoint = -yAxisInt / (-(lSlope*lSlope)-1);
+			return [xPoint, yPoint];
+		}
+
+		function polyArea (poly) { //pass entire polygon with n points..[[X0, Y0], [X1, Y1], ....]
+			
+			/*  1. Start with polygon made up with points A, B, C, D, E and etc. in a 2 dim array
+					i.e. [[X0, Y0], [X1, Y1], ....]
+				2. Transform all points in the polygon coordinates so point A is 0,0
+				3. Determine area using triangles...ABC, ACD, ADE and etc.so
+				4. Determine slope of line BC, then CD, then DE and etc.
+				5. Determine y-axis intercept, b for line BC, then DC and etc.
+				6. Determine length of line BC
+				7. Find point h.  Intersection of line BC and a line with -1/slope which goes through A.
+				8. Find length of Ah, the height of the triangle.
+				9. Area of triangle is 1/2*(length of line BC and length of line Ah)
+				10. Sum areas of triangles to find area of polygon.
+			*/
+			var lineSlope = 0;
+			var bInt = 0;
+			var lineSegLengthBC = 0;
+			var intSectPoint = 0;
+			var lineSegLengthAh = 0;
+			var triArea = 0;
+			var sumArea = 0;
+			//debugger;
+			var polyT = coorTrans(poly); //Step 2 in algorithm. //pass by reference?
+			for (i = 1; i<polyT.length-1; i++){
+				lineSlope = twoPointsSlope(polyT[i],polyT[i+1]);// Step 4
+				bInt = bIntercept(polyT[i], lineSlope); //Step 5
+				lineSegLengthBC = distanceTwoPoints(polyT[i],polyT[i+1]); //Step 6
+				if (bInt != Infinity){
+					intSectPoint = lineIntsect (bInt, lineSlope); // Step 7
+					lineSegLengthAh = distanceTwoPoints(poly[0], intSectPoint);
+				} else {
+					lineSegLengthAh = Math.abs(polyT[i][0]);
+				}
+				 // Step 8
+				triArea = 0.5*(lineSegLengthAh*lineSegLengthBC);
+				sumArea += triArea;
+			}
+			return sumArea;
+		}
+
+		console.log(polygon_1);
+		var polygon_1T = polygon_1.slice(0,polygon_1.length);//NOT a deep copy, but a reference copy.
+		console.log(polyArea(polygon_1T));
+		console.log(polygon_1T);
+		console.log(polyArea(polygon_2));
+		console.log(polygon_2);
+		console.log(polyArea(polygon_3));
+		console.log(polygon_3);
+		
+
+
+
+/*		function triArea (point1, point 2, point3){
+			var pntSlope = twoPointsSlope (point1, point2);
+			if (pntSlope === 0){
+				triHeight = Math.abs(point1.y - point2.y); 
+			}
+			if (pntSlope === Infinity){
+				triHeight = Math.abs(point1.x - point2.x);
+			}
+
+		}*/
+
+/*
+		var ptn = '';
+		for (var i=0; i<4; i++){
+			ptn = 'ptn'+i;
+			document.getElementById(ptn).onclick = 
+		}
+
+		function loop(){
+
+		}
+
+	setInterval(loop, 1000/60);
+*/
+	</script>
+
+</body>
+</html>
